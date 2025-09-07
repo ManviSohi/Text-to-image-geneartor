@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>✨ Text → Image Generator</title>
+  <style>
+    :root{
+      --bg:#0a0f1c;
+      --card:#111827;
+      --accent:#6366f1;
+      --accent2:#ec4899;
+      --muted:#94a3b8;
+      --glass:rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box;font-family:'Poppins',sans-serif}
+    body{
+      margin:0;
+      background:linear-gradient(135deg,#0a0f1c,#1e293b);
+      color:#f1f5f9;
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      padding:28px;
+    }
+    .app{width:100%;max-width:1400px}
+    header{
+      text-align:center;
+      margin-bottom:28px;
+    }
+    header h1{
+      font-size:32px;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin:0;
+      transform:scale(1);
+      transition:transform 0.3s ease;
+    }
+    header h1:hover{transform:scale(1.08);}
+    header p{color:var(--muted);font-size:15px;margin-top:6px}
+
+    .grid{display:grid;grid-template-columns:1fr 480px;gap:24px}
+    .card{
+      background:var(--card);
+      padding:22px;
+      border-radius:18px;
+      box-shadow:0 6px 30px rgba(0,0,0,0.6);
+      border:1px solid rgba(255,255,255,0.05);
+      backdrop-filter:blur(12px);
+      animation:fadeIn 0.6s ease;
+      transform:translateY(0);
+      transition:transform 0.3s;
+    }
+    .card:hover{transform:translateY(-4px) scale(1.01);}
+
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    .label{font-size:13px;color:var(--muted);margin-bottom:6px}
+    textarea{
+      width:100%;min-height:160px;
+      background:var(--glass);
+      border:1px solid rgba(255,255,255,0.08);
+      color:#f8fafc;
+      padding:12px;border-radius:12px;resize:vertical;
+    }
+    .controls{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:16px}
+    select,input[type=number],input[type=text]{
+      background:var(--glass);
+      border:1px solid rgba(255,255,255,0.1);
+      color:inherit;padding:10px;border-radius:12px;
+      transition:all 0.2s;
+      transform:scale(1);
+    }
+    select:hover,input:hover{transform:scale(1.05)}
+    select:focus,input:focus{outline:none;border-color:var(--accent);}
+
+    button{
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      border:none;color:white;
+      padding:12px 18px;
+      border-radius:14px;cursor:pointer;
+      transition:transform 0.2s, box-shadow 0.2s;
+      transform:scale(1);
+    }
+    button:hover{transform:scale(1.07);box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+    button.secondary{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.12);
+    }
+
+    .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:16px}
+    .imgcard{
+      background:linear-gradient(180deg,rgba(255,255,255,0.05),transparent);
+      padding:10px;border-radius:14px;
+      display:flex;flex-direction:column;gap:8px;
+      transition:transform 0.3s;
+      transform:scale(1);
+    }
+    .imgcard:hover{transform:scale(1.05) rotate(-1deg)}
+    .imgcard img{width:100%;height:180px;object-fit:cover;border-radius:12px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .muted{color:var(--muted);font-size:13px}
+    .small{font-size:12px}
+    .center{display:flex;align-items:center;justify-content:center}
+    .spinner{border:4px solid rgba(255,255,255,0.06);border-left-color:var(--accent);height:30px;width:30px;border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    footer{margin-top:20px;color:var(--muted);font-size:14px;text-align:center}
+
+    .examples{
+      margin-top:40px;
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+      gap:18px;
+    }
+    .examples img{
+      width:100%;
+      height:180px;
+      object-fit:cover;
+      border-radius:12px;
+      transform:scale(1);
+      transition:transform 0.3s;
+    }
+    .examples img:hover{transform:scale(1.08)}
+
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>✨ Text → Image Generator</h1>
+      <p>Create stunning AI images with custom genres, tones, styles & more.</p>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Enter your prompt</div>
+        <textarea id="prompt" placeholder="A futuristic city skyline glowing at night..."></textarea>
+
+        <div class="controls">
+          <div><div class="label">Genre</div><select id="genre"><option>Fantasy</option><option>Sci-Fi</option><option>Romance</option><option>Mystery</option><option>Adventure</option><option>Historical</option><option>Horror</option></select></div>
+          <div><div class="label">Tone</div><select id="tone"><option>Lighthearted</option><option>Dark</option><option>Serious</option><option>Whimsical</option><option>Epic</option><option>Romantic</option></select></div>
+          <div><div class="label">Audience</div><select id="audience"><option>Children</option><option>Teens</option><option>Adults</option><option>General</option></select></div>
+          <div><div class="label">Style</div><select id="style"><option>Realistic</option><option>Cartoon</option><option>Anime</option><option>Illustration</option><option>Watercolor</option><option>Pixel Art</option></select></div>
+          <div><div class="label">Image Size</div><select id="size"><option>512x512</option><option>768x768</option><option>1024x1024</option></select></div>
+          <div><div class="label">Count</div><input id="count" type="number" min="1" max="6" value="3" /></div>
+          <div><div class="label">Seed</div><input id="seed" type="number" placeholder="random" /></div>
+        </div>
+
+        <div style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button id="generate">Generate ✨</button>
+          <button class="secondary" id="clear">Clear</button>
+          <div id="status" style="margin-left:auto" class="muted small">Ready</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+          <div>
+            <div class="label">Results</div>
+            <div class="muted small">Your generated images will appear here.</div>
+          </div>
+          <div class="row">
+            <button class="secondary" id="downloadAll">Download All</button>
+            <button class="secondary" id="copyPrompt">Copy Prompt</button>
+          </div>
+        </div>
+
+        <div id="results" class="results" aria-live="polite"></div>
+        <div id="noresults" class="center muted" style="height:220px;margin-top:12px">No images yet — enter a prompt and click Generate</div>
+      </div>
+    </div>
+
+    <section class="examples">
+      <img src="fantasy.jpg" alt="Example fantasy" />
+      <img src="sci-fi.jpg" alt="Example sci-fi" />
+      <img src="anime.jpg" alt="Example anime" />
+      <img src="cartoon.jpg" alt="Example cartoon" />
+      <img src="nature.jpg" alt="Example nature" />
+    </section>
+
+    <footer>⚡ Powered by AI — Customize your world with prompts, styles, and creativity.</footer>
+  </div>
+
+  <script>
+    const promptEl=document.getElementById('prompt');
+    const genreEl=document.getElementById('genre');
+    const toneEl=document.getElementById('tone');
+    const audienceEl=document.getElementById('audience');
+    const styleEl=document.getElementById('style');
+    const sizeEl=document.getElementById('size');
+    const countEl=document.getElementById('count');
+    const seedEl=document.getElementById('seed');
+    const generateBtn=document.getElementById('generate');
+    const resultsEl=document.getElementById('results');
+    const statusEl=document.getElementById('status');
+    const noresultsEl=document.getElementById('noresults');
+    const clearBtn=document.getElementById('clear');
+    const downloadAllBtn=document.getElementById('downloadAll');
+    const copyPromptBtn=document.getElementById('copyPrompt');
+
+    function setStatus(text,busy=false){statusEl.textContent=text;generateBtn.disabled=busy;if(busy){statusEl.innerHTML='<div class="spinner"></div>';}}
+    function clearResults(){resultsEl.innerHTML='';noresultsEl.style.display='flex';}
+    async function downloadDataUrl(dataUrl,filename){const a=document.createElement('a');a.href=dataUrl;a.download=filename;document.body.appendChild(a);a.click();a.remove();}
+
+    clearBtn.addEventListener('click',()=>{promptEl.value='';clearResults();setStatus('Cleared');});
+    copyPromptBtn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(promptEl.value||'');setStatus('Copied!');setTimeout(()=>setStatus('Ready'),1000);}catch(e){setStatus('Copy failed')}});
+    downloadAllBtn.addEventListener('click',()=>{const imgs=resultsEl.querySelectorAll('img');if(!imgs.length){setStatus('No images');return;}imgs.forEach((img,i)=>downloadDataUrl(img.src,`image-${i+1}.png`));});
+
+    generateBtn.addEventListener('click',async()=>{
+      const prompt=promptEl.value.trim();
+      if(!prompt){setStatus('Enter a prompt');return;}
+      const payload={prompt,genre:genreEl.value,tone:toneEl.value,audience:audienceEl.value,style:styleEl.value,size:sizeEl.value,count:parseInt(countEl.value,10)||1};
+      if(seedEl.value) payload.seed=parseInt(seedEl.value,10);
+      const endpoint='/api/generate';
+      setStatus('Generating...',true);noresultsEl.style.display='none';
+      try{const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data=await res.json();if(!data||!Array.isArray(data.images)) throw new Error('Invalid response format');
+        resultsEl.innerHTML='';data.images.forEach((durl,idx)=>{const card=document.createElement('div');card.className='imgcard';const img=document.createElement('img');img.src=durl.startsWith('http')?durl:`data:image/png;base64,${durl}`;img.alt=`Generated ${idx+1}`;const row=document.createElement('div');row.className='row';const t=document.createElement('div');t.className='muted small';t.textContent=`#${idx+1}`;const dl=document.createElement('button');dl.className='secondary small';dl.textContent='Download';dl.addEventListener('click',()=>downloadDataUrl(img.src,`image-${idx+1}.png`));const open=document.createElement('button');open.className='secondary small';open.textContent='Open';open.addEventListener('click',()=>window.open(img.src));row.appendChild(t);row.appendChild(dl);row.appendChild(open);card.appendChild(img);card.appendChild(row);resultsEl.appendChild(card);});setStatus('Done');}
+      catch(err){console.error(err);setStatus('Error: '+err.message);}finally{generateBtn.disabled=false;}});
+
+    promptEl.addEventListener('keydown',(e)=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){generateBtn.click();}});
+    clearResults();setStatus('Ready');
+  </script>
+</body>
+</html>
+
